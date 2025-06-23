@@ -1,0 +1,434 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Digital Matrix Countdown</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            background-color: #000000;
+            color: #fff;
+            font-family: 'Rajdhani', sans-serif;
+            overflow: hidden;
+            margin: 0;
+            padding: 0;
+        }
+
+        #bg-canvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+        }
+
+        .container {
+            position: relative;
+            z-index: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            padding: 20px;
+        }
+        
+        .neon-text {
+            font-family: 'Audiowide', cursive;
+            color: #fff;
+            text-shadow:
+                0 0 7px #39ff14,
+                0 0 10px #39ff14,
+                0 0 21px #39ff14,
+                0 0 42px #39ff14,
+                0 0 82px #39ff14,
+                0 0 92px #39ff14;
+        }
+
+        .countdown-box {
+            background: rgba(0, 10, 0, 0.6);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(57, 255, 20, 0.3);
+            border-radius: 15px;
+            padding: 2.5rem;
+            text-align: center;
+            box-shadow: 0 0 40px rgba(57, 255, 20, 0.2);
+            width: 90%;
+            max-width: 850px;
+            animation: pulse-border 6s infinite ease-in-out;
+        }
+
+        @keyframes pulse-border {
+            0% { border-color: rgba(57, 255, 20, 0.3); box-shadow: 0 0 40px rgba(57, 255, 20, 0.2); }
+            50% { border-color: rgba(57, 255, 20, 0.6); box-shadow: 0 0 50px rgba(57, 255, 20, 0.4); }
+            100% { border-color: rgba(57, 255, 20, 0.3); box-shadow: 0 0 40px rgba(57, 255, 20, 0.2); }
+        }
+        
+        .time-panel {
+            width: 150px;
+            height: 100px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            margin: 0 0.75rem;
+            border: 1px solid #39ff14;
+            background: 
+                linear-gradient(rgba(57, 255, 20, 0.1), rgba(57, 255, 20, 0.1));
+            box-shadow: 0 0 20px #39ff14, inset 0 0 15px rgba(57, 255, 20, 0.3);
+            border-radius: 10px;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+        
+        .time-panel:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 0 30px #39ff14, inset 0 0 20px rgba(57, 255, 20, 0.5);
+        }
+
+        .time-panel .value {
+            font-family: 'Audiowide', cursive;
+            font-size: 3rem;
+            line-height: 1;
+            color: #fff;
+            text-shadow: 0 0 5px #fff, 0 0 15px #39ff14;
+        }
+
+        .time-panel .label {
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 3px;
+            margin-top: 0.5rem;
+            color: #39ff14;
+        }
+
+        input[type="text"], input[type="datetime-local"] {
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            background: rgba(0, 0, 0, 0.5);
+            border: 1px solid #39ff14;
+            color: #fff;
+            padding: 0.75rem 1rem;
+            border-radius: 8px;
+            outline: none;
+            transition: all 0.3s ease;
+            width: 100%;
+            font-size: 1rem;
+            box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.3);
+        }
+        
+        input[type="text"]::placeholder { color: rgba(255, 255, 255, 0.6); }
+
+        input:focus {
+            border-color: #fff;
+            box-shadow: 0 0 15px rgba(57, 255, 20, 0.7), inset 0 0 10px rgba(57, 255, 20, 0.5);
+        }
+        
+        input[type="datetime-local"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) brightness(0.7) sepia(1) hue-rotate(80deg);
+            cursor: pointer;
+        }
+
+        button#setEventBtn {
+            font-family: 'Audiowide', cursive;
+            font-size: 1rem;
+            background: linear-gradient(45deg, #39ff14, #00b300);
+            color: #000;
+            border: 2px solid #39ff14;
+            padding: 0.85rem 2rem;
+            border-radius: 8px; cursor: pointer; text-transform: uppercase;
+            transition: all 0.3s ease;
+            text-shadow: 0 0 5px #000;
+            box-shadow: 0 0 20px #39ff14, inset 0 0 10px rgba(255, 255, 255, 0.3);
+            width: 100%;
+        }
+
+        button#setEventBtn:hover {
+            transform: scale(1.05);
+            box-shadow: 0 0 30px #39ff14, inset 0 0 10px rgba(255, 255, 255, 0.5);
+        }
+
+        #modal {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 10, 0, 0.8); backdrop-filter: blur(5px);
+            z-index: 100;
+        }
+        #modal-content {
+            background: #000; padding: 2.5rem; border-radius: 15px;
+            border: 1px solid #39ff14; text-align: center;
+            box-shadow: 0 0 25px rgba(57, 255, 20, 0.5);
+            width: 90%; max-width: 400px;
+        }
+        
+        #developer-credit {
+            position: fixed;
+            bottom: 15px; right: 20px; z-index: 10;
+            font-family: 'Audiowide', cursive;
+            font-size: 1rem; color: #39ff14;
+            opacity: 0.8;
+            text-shadow: 0 0 8px #39ff14;
+            transition: all 0.3s ease;
+        }
+        #developer-credit:hover { opacity: 1; transform: scale(1.05); }
+
+        @media (max-width: 768px) {
+            .countdown-box { padding: 1.5rem; }
+            #countdown-timer { flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
+            .time-panel { width: 130px; height: 90px; margin: 0.5rem; }
+            .time-panel .value { font-size: 2rem; }
+            h1 { font-size: 2.2rem; }
+            h2 { font-size: 1.25rem; }
+            .controls { flex-direction: column; }
+            #developer-credit { font-size: 0.8rem; right: 10px; bottom: 10px; }
+        }
+    </style>
+</head>
+<body>
+    <canvas id="bg-canvas"></canvas>
+
+    <div class="container">
+        <div class="countdown-box">
+            <h1 id="event-title" class="text-4xl md:text-5xl mb-8 neon-text">Countdown</h1>
+            <h2 id="event-finished-message" class="text-2xl text-green-300 hidden">The event has started!</h2>
+
+            <div id="countdown-timer" class="flex flex-wrap justify-center my-8">
+                <div class="time-panel">
+                    <div id="days" class="value">00</div>
+                    <div class="label">Days</div>
+                </div>
+                <div class="time-panel">
+                    <div id="hours" class="value">00</div>
+                    <div class="label">Hours</div>
+                </div>
+                <div class="time-panel">
+                    <div id="minutes" class="value">00</div>
+                    <div class="label">Minutes</div>
+                </div>
+                <div class="time-panel">
+                    <div id="seconds" class="value">00</div>
+                    <div class="label">Seconds</div>
+                </div>
+            </div>
+
+            <div class="controls flex flex-col gap-4 max-w-md mx-auto">
+                <input type="text" id="eventName" placeholder="Your Special Day Here">
+                <input type="datetime-local" id="eventDate">
+                <button id="setEventBtn">Set Countdown</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Modal -->
+    <div id="modal" class="hidden items-center justify-center">
+        <div id="modal-content">
+            <p id="modal-message" class="mb-4 text-lg text-slate-200"></p>
+            <button id="modal-close" class="px-8 py-2 border-2 border-green-400 text-green-400 rounded-md hover:bg-green-400 hover:text-black transition-colors">OK</button>
+        </div>
+    </div>
+    
+    <div id="developer-credit">Developed By Ali</div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        // --- THREE.JS 3D BACKGROUND ---
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        camera.position.z = 5;
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), antialias: true });
+        
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        renderer.setClearColor(0x000000);
+
+        // Matrix Rain
+        const particleCount = 10000;
+        const positions = new Float32Array(particleCount * 3);
+        const velocities = new Float32Array(particleCount);
+
+        for (let i = 0; i < particleCount; i++) {
+            positions[i * 3] = Math.random() * 20 - 10;      // x
+            positions[i * 3 + 1] = Math.random() * 20 - 10;   // y
+            positions[i * 3 + 2] = Math.random() * 20 - 10;   // z
+            velocities[i] = 0.02 + Math.random() * 0.08;
+        }
+
+        const geometry = new THREE.BufferGeometry();
+        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+
+        const material = new THREE.PointsMaterial({
+            color: 0x39ff14,
+            size: 0.05,
+            transparent: true,
+            opacity: 0.7,
+            blending: THREE.AdditiveBlending
+        });
+
+        const particles = new THREE.Points(geometry, material);
+        scene.add(particles);
+
+        function animate() {
+            requestAnimationFrame(animate);
+
+            const positions = particles.geometry.attributes.position.array;
+            for (let i = 0; i < particleCount; i++) {
+                positions[i * 3 + 1] -= velocities[i];
+                if (positions[i * 3 + 1] < -10) {
+                    positions[i * 3 + 1] = 10; // Reset to top
+                }
+            }
+            particles.geometry.attributes.position.needsUpdate = true;
+            
+            particles.rotation.y += 0.0005;
+
+            renderer.render(scene, camera);
+        }
+        
+        window.addEventListener('resize', () => {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        });
+
+        animate();
+
+        // --- COUNTDOWN LOGIC ---
+        const daysEl = document.getElementById('days');
+        const hoursEl = document.getElementById('hours');
+        const minutesEl = document.getElementById('minutes');
+        const secondsEl = document.getElementById('seconds');
+        const eventTitleEl = document.getElementById('event-title');
+        const eventNameInput = document.getElementById('eventName');
+        const eventDateInput = document.getElementById('eventDate');
+        const setEventBtn = document.getElementById('setEventBtn');
+        const timerEl = document.getElementById('countdown-timer');
+        const finishedMessageEl = document.getElementById('event-finished-message');
+        const modal = document.getElementById('modal');
+        const modalMessage = document.getElementById('modal-message');
+        const modalCloseBtn = document.getElementById('modal-close');
+        
+        let countdownInterval;
+        let targetDate;
+
+        function showModal(message) {
+            modalMessage.textContent = message;
+            modal.classList.remove('hidden');
+        }
+
+        function hideModal() {
+            modal.classList.add('hidden');
+        }
+        
+        modalCloseBtn.addEventListener('click', hideModal);
+
+        function setDefaultEvent() {
+            eventTitleEl.textContent = "Countdown";
+            const now = new Date();
+            const oneMonthFromNow = new Date(now.setMonth(now.getMonth() + 1));
+            targetDate = oneMonthFromNow.getTime();
+            
+            localStorage.setItem('countdownTarget', targetDate);
+            localStorage.setItem('countdownName', "Countdown");
+
+            // Set the default values in the input fields for the user
+            eventNameInput.value = "";
+            const defaultDate = new Date();
+            defaultDate.setMinutes(defaultDate.getMinutes() - defaultDate.getTimezoneOffset());
+            eventDateInput.value = defaultDate.toISOString().slice(0, 16);
+            
+            startCountdown();
+        }
+
+        function startCountdown() {
+            if (countdownInterval) clearInterval(countdownInterval);
+
+            countdownInterval = setInterval(() => {
+                const now = new Date().getTime();
+                const distance = targetDate - now;
+
+                if (distance < 0) {
+                    clearInterval(countdownInterval);
+                    timerEl.classList.add('hidden');
+                    finishedMessageEl.classList.remove('hidden');
+                    localStorage.removeItem('countdownTarget');
+                    localStorage.removeItem('countdownName');
+                    return;
+                }
+                
+                timerEl.classList.remove('hidden');
+                finishedMessageEl.classList.add('hidden');
+
+                const days = Math.floor(distance / (1000 * 60 * 60 * 24));
+                const hours = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+                const minutes = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+                const seconds = Math.floor((distance % (1000 * 60)) / 1000);
+
+                daysEl.textContent = String(days).padStart(2, '0');
+                hoursEl.textContent = String(hours).padStart(2, '0');
+                minutesEl.textContent = String(minutes).padStart(2, '0');
+                secondsEl.textContent = String(seconds).padStart(2, '0');
+
+            }, 1000);
+        }
+
+        setEventBtn.addEventListener('click', () => {
+            const eventName = eventNameInput.value;
+            const eventDate = eventDateInput.value;
+
+            if (eventDate) {
+                const newTargetDate = new Date(eventDate).getTime();
+                if(isNaN(newTargetDate)){
+                     showModal("The date you selected is not valid. Please try again.");
+                     return;
+                }
+                if ((newTargetDate - new Date().getTime()) < 0) {
+                    showModal("Please select a future date and time.");
+                    return;
+                }
+                
+                targetDate = newTargetDate;
+                const finalEventName = eventName || "Countdown";
+                
+                localStorage.setItem('countdownTarget', targetDate);
+                localStorage.setItem('countdownName', finalEventName);
+                
+                eventTitleEl.textContent = finalEventName;
+                startCountdown();
+            } else {
+                showModal("Please select a valid date and time.");
+            }
+        });
+
+        function loadSavedEvent() {
+            let savedTarget = localStorage.getItem('countdownTarget');
+            let savedName = localStorage.getItem('countdownName');
+            
+            if (savedName === "New Year Countdown") {
+                savedName = "Countdown";
+                localStorage.setItem('countdownName', 'Countdown');
+            }
+
+            if (savedTarget && savedName) {
+                targetDate = parseInt(savedTarget, 10);
+                if ((targetDate - new Date().getTime()) < 0) {
+                    setDefaultEvent();
+                } else {
+                    eventTitleEl.textContent = savedName;
+                    eventNameInput.value = savedName === "Countdown" ? "" : savedName;
+                    const savedDate = new Date(targetDate);
+                    savedDate.setMinutes(savedDate.getMinutes() - savedDate.getTimezoneOffset());
+                    eventDateInput.value = savedDate.toISOString().slice(0, 16);
+                    startCountdown();
+                }
+            } else {
+                setDefaultEvent();
+            }
+        }
+        
+        loadSavedEvent();
+    </script>
+</body>
+</html>
