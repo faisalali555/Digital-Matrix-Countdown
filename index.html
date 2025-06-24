@@ -3,28 +3,27 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Digital Matrix Countdown</title>
+    <title>Live Countdown</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Audiowide&family=Rajdhani:wght@400;700&display=swap" rel="stylesheet">
     <style>
+        :root {
+            --glow-color: #08d9d6; /* Teal color for the credits glow */
+        }
+
         body {
-            background-color: #000000;
+            background-color: #0d0221;
+            background-image: 
+                radial-gradient(ellipse at 0% 100%, #290f4e 0%, transparent 50%),
+                radial-gradient(ellipse at 100% 0%, #08d9d6 0%, transparent 40%);
             color: #fff;
             font-family: 'Rajdhani', sans-serif;
             overflow: hidden;
             margin: 0;
             padding: 0;
-        }
-
-        #bg-canvas {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            z-index: -1;
+            height: 100vh;
         }
 
         .container {
@@ -42,31 +41,30 @@
             font-family: 'Audiowide', cursive;
             color: #fff;
             text-shadow:
-                0 0 7px #39ff14,
-                0 0 10px #39ff14,
-                0 0 21px #39ff14,
-                0 0 42px #39ff14,
-                0 0 82px #39ff14,
-                0 0 92px #39ff14;
+                0 0 7px #fff,
+                0 0 10px #25ced1,
+                0 0 21px #25ced1,
+                0 0 42px #ff4567,
+                0 0 82px #ff4567;
         }
 
         .countdown-box {
-            background: rgba(0, 10, 0, 0.6);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(57, 255, 20, 0.3);
+            background: rgba(13, 2, 33, 0.6);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(37, 206, 209, 0.3);
             border-radius: 15px;
             padding: 2.5rem;
             text-align: center;
-            box-shadow: 0 0 40px rgba(57, 255, 20, 0.2);
+            box-shadow: 0 0 40px rgba(37, 206, 209, 0.2);
             width: 90%;
             max-width: 850px;
-            animation: pulse-border 6s infinite ease-in-out;
+            animation: pulse-border 8s infinite ease-in-out;
         }
 
         @keyframes pulse-border {
-            0% { border-color: rgba(57, 255, 20, 0.3); box-shadow: 0 0 40px rgba(57, 255, 20, 0.2); }
-            50% { border-color: rgba(57, 255, 20, 0.6); box-shadow: 0 0 50px rgba(57, 255, 20, 0.4); }
-            100% { border-color: rgba(57, 255, 20, 0.3); box-shadow: 0 0 40px rgba(57, 255, 20, 0.2); }
+            0% { border-color: rgba(37, 206, 209, 0.3); box-shadow: 0 0 40px rgba(37, 206, 209, 0.2); }
+            50% { border-color: rgba(255, 69, 103, 0.3); box-shadow: 0 0 50px rgba(255, 69, 103, 0.2); }
+            100% { border-color: rgba(37, 206, 209, 0.3); box-shadow: 0 0 40px rgba(37, 206, 209, 0.2); }
         }
         
         .time-panel {
@@ -77,18 +75,17 @@
             align-items: center;
             justify-content: center;
             margin: 0 0.75rem;
-            border: 1px solid #39ff14;
-            background: 
-                linear-gradient(rgba(57, 255, 20, 0.1), rgba(57, 255, 20, 0.1));
-            box-shadow: 0 0 20px #39ff14, inset 0 0 15px rgba(57, 255, 20, 0.3);
+            border: 1px solid #25ced1;
+            background: linear-gradient(rgba(37, 206, 209, 0.1), transparent);
+            box-shadow: 0 0 20px #25ced1, inset 0 0 15px rgba(37, 206, 209, 0.2);
             border-radius: 10px;
             position: relative;
             transition: all 0.3s ease;
         }
         
         .time-panel:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 0 30px #39ff14, inset 0 0 20px rgba(57, 255, 20, 0.5);
+            transform: translateY(-5px) scale(1.05);
+            box-shadow: 0 0 30px #25ced1, inset 0 0 20px rgba(37, 206, 209, 0.4);
         }
 
         .time-panel .value {
@@ -96,7 +93,7 @@
             font-size: 3rem;
             line-height: 1;
             color: #fff;
-            text-shadow: 0 0 5px #fff, 0 0 15px #39ff14;
+            text-shadow: 0 0 5px #fff, 0 0 15px #25ced1;
         }
 
         .time-panel .label {
@@ -104,14 +101,14 @@
             text-transform: uppercase;
             letter-spacing: 3px;
             margin-top: 0.5rem;
-            color: #39ff14;
+            color: #25ced1;
         }
 
         input[type="text"], input[type="datetime-local"] {
             font-family: 'Rajdhani', sans-serif;
             font-weight: 700;
             background: rgba(0, 0, 0, 0.5);
-            border: 1px solid #39ff14;
+            border: 1px solid #ff4567;
             color: #fff;
             padding: 0.75rem 1rem;
             border-radius: 8px;
@@ -119,63 +116,52 @@
             transition: all 0.3s ease;
             width: 100%;
             font-size: 1rem;
-            box-shadow: inset 0 0 10px rgba(57, 255, 20, 0.3);
+            box-shadow: inset 0 0 10px rgba(255, 69, 103, 0.3);
         }
         
         input[type="text"]::placeholder { color: rgba(255, 255, 255, 0.6); }
 
         input:focus {
             border-color: #fff;
-            box-shadow: 0 0 15px rgba(57, 255, 20, 0.7), inset 0 0 10px rgba(57, 255, 20, 0.5);
+            box-shadow: 0 0 15px rgba(255, 69, 103, 0.7), inset 0 0 10px rgba(255, 69, 103, 0.5);
         }
         
         input[type="datetime-local"]::-webkit-calendar-picker-indicator {
-            filter: invert(1) brightness(0.7) sepia(1) hue-rotate(80deg);
+            filter: invert(1) brightness(0.8) sepia(1) hue-rotate(280deg);
             cursor: pointer;
         }
 
         button#setEventBtn {
             font-family: 'Audiowide', cursive;
             font-size: 1rem;
-            background: linear-gradient(45deg, #39ff14, #00b300);
-            color: #000;
-            border: 2px solid #39ff14;
+            background: linear-gradient(45deg, #ff4567, #ff718a);
+            color: #fff;
+            border: 2px solid #ff4567;
             padding: 0.85rem 2rem;
             border-radius: 8px; cursor: pointer; text-transform: uppercase;
             transition: all 0.3s ease;
-            text-shadow: 0 0 5px #000;
-            box-shadow: 0 0 20px #39ff14, inset 0 0 10px rgba(255, 255, 255, 0.3);
+            text-shadow: 0 0 5px #fff;
+            box-shadow: 0 0 20px #ff4567, inset 0 0 10px rgba(255, 255, 255, 0.2);
             width: 100%;
         }
 
         button#setEventBtn:hover {
             transform: scale(1.05);
-            box-shadow: 0 0 30px #39ff14, inset 0 0 10px rgba(255, 255, 255, 0.5);
+            box-shadow: 0 0 30px #ff4567, inset 0 0 10px rgba(255, 255, 255, 0.4);
         }
 
         #modal {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0, 10, 0, 0.8); backdrop-filter: blur(5px);
+            background: rgba(13, 2, 33, 0.8); backdrop-filter: blur(5px);
             z-index: 100;
         }
         #modal-content {
-            background: #000; padding: 2.5rem; border-radius: 15px;
-            border: 1px solid #39ff14; text-align: center;
-            box-shadow: 0 0 25px rgba(57, 255, 20, 0.5);
+            background: #0d0221; padding: 2.5rem; border-radius: 15px;
+            border: 1px solid #25ced1; text-align: center;
+            box-shadow: 0 0 25px rgba(37, 206, 209, 0.5);
             width: 90%; max-width: 400px;
         }
         
-        #developer-credit {
-            position: fixed;
-            bottom: 15px; right: 20px; z-index: 10;
-            font-family: 'Audiowide', cursive;
-            font-size: 1rem; color: #39ff14;
-            opacity: 0.8;
-            text-shadow: 0 0 8px #39ff14;
-            transition: all 0.3s ease;
-        }
-        #developer-credit:hover { opacity: 1; transform: scale(1.05); }
-
         @media (max-width: 768px) {
             .countdown-box { padding: 1.5rem; }
             #countdown-timer { flex-wrap: wrap; justify-content: center; gap: 0.5rem; }
@@ -184,17 +170,15 @@
             h1 { font-size: 2.2rem; }
             h2 { font-size: 1.25rem; }
             .controls { flex-direction: column; }
-            #developer-credit { font-size: 0.8rem; right: 10px; bottom: 10px; }
+            #developer-credits { font-size: 0.8rem; right: 10px; top: 10px; padding: 0.4rem 0.8rem;}
         }
     </style>
 </head>
 <body>
-    <canvas id="bg-canvas"></canvas>
-
     <div class="container">
         <div class="countdown-box">
             <h1 id="event-title" class="text-4xl md:text-5xl mb-8 neon-text">Countdown</h1>
-            <h2 id="event-finished-message" class="text-2xl text-green-300 hidden">The event has started!</h2>
+            <h2 id="event-finished-message" class="text-2xl text-teal-300 hidden">The event has started!</h2>
 
             <div id="countdown-timer" class="flex flex-wrap justify-center my-8">
                 <div class="time-panel">
@@ -227,75 +211,20 @@
     <div id="modal" class="hidden items-center justify-center">
         <div id="modal-content">
             <p id="modal-message" class="mb-4 text-lg text-slate-200"></p>
-            <button id="modal-close" class="px-8 py-2 border-2 border-green-400 text-green-400 rounded-md hover:bg-green-400 hover:text-black transition-colors">OK</button>
+            <button id="modal-close" class="px-8 py-2 border-2 border-teal-400 text-teal-400 rounded-md hover:bg-teal-400 hover:text-black transition-colors">OK</button>
         </div>
     </div>
     
-    <div id="developer-credit">Developed By Ali</div>
+    <!-- Developer Credits Top Right -->
+    <div id="developer-credits" class="fixed top-5 right-6 bg-black/40 backdrop-blur-md text-sm text-teal-300 px-4 py-2 rounded-full border border-teal-400/30 transition-all hover:shadow-2xl hover:shadow-teal-500/50 hover:-translate-y-1" style="text-shadow: 0 0 8px var(--glow-color);"> 
+        Developed by <strong>Muhammad Faisal Ali 💗</strong> 
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 inline-block ml-1 text-teal-400" viewBox="0 0 20 20" fill="currentColor"> 
+            <path fill-rule="evenodd" d="M6.267 3.455a3.066 3.066 0 001.745-.723 3.066 3.066 0 013.976 0 3.066 3.066 0 001.745.723 3.066 3.066 0 012.812 2.812c.051.643.304 1.254.723 1.745a3.066 3.066 0 010 3.976 3.066 3.066 0 00-.723 1.745 3.066 3.066 0 01-2.812 2.812 3.066 3.066 0 00-1.745.723 3.066 3.066 0 01-3.976 0 3.066 3.066 0 00-1.745-.723 3.066 3.066 0 01-2.812-2.812 3.066 3.066 0 00-.723-1.745 3.066 3.066 0 010-3.976 3.066 3.066 0 00.723-1.745 3.066 3.066 0 012.812-2.812zm7.48 5.088a.75.75 0 01.087 1.05l-3.25 4.5a.75.75 0 01-1.137.087L5.75 10.75a.75.75 0 111.06-1.06l1.72 1.72 2.7-3.75a.75.75 0 011.05-.087z" clip-rule="evenodd" /> 
+        </svg>
+    </div>
 
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
     <script>
-        // --- THREE.JS 3D BACKGROUND ---
-        const scene = new THREE.Scene();
-        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
-        camera.position.z = 5;
-        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('bg-canvas'), antialias: true });
-        
-        renderer.setSize(window.innerWidth, window.innerHeight);
-        renderer.setClearColor(0x000000);
-
-        // Matrix Rain
-        const particleCount = 10000;
-        const positions = new Float32Array(particleCount * 3);
-        const velocities = new Float32Array(particleCount);
-
-        for (let i = 0; i < particleCount; i++) {
-            positions[i * 3] = Math.random() * 20 - 10;      // x
-            positions[i * 3 + 1] = Math.random() * 20 - 10;   // y
-            positions[i * 3 + 2] = Math.random() * 20 - 10;   // z
-            velocities[i] = 0.02 + Math.random() * 0.08;
-        }
-
-        const geometry = new THREE.BufferGeometry();
-        geometry.setAttribute('position', new THREE.BufferAttribute(positions, 3));
-
-        const material = new THREE.PointsMaterial({
-            color: 0x39ff14,
-            size: 0.05,
-            transparent: true,
-            opacity: 0.7,
-            blending: THREE.AdditiveBlending
-        });
-
-        const particles = new THREE.Points(geometry, material);
-        scene.add(particles);
-
-        function animate() {
-            requestAnimationFrame(animate);
-
-            const positions = particles.geometry.attributes.position.array;
-            for (let i = 0; i < particleCount; i++) {
-                positions[i * 3 + 1] -= velocities[i];
-                if (positions[i * 3 + 1] < -10) {
-                    positions[i * 3 + 1] = 10; // Reset to top
-                }
-            }
-            particles.geometry.attributes.position.needsUpdate = true;
-            
-            particles.rotation.y += 0.0005;
-
-            renderer.render(scene, camera);
-        }
-        
-        window.addEventListener('resize', () => {
-            camera.aspect = window.innerWidth / window.innerHeight;
-            camera.updateProjectionMatrix();
-            renderer.setSize(window.innerWidth, window.innerHeight);
-        });
-
-        animate();
-
-        // --- COUNTDOWN LOGIC ---
+        // --- COUNTDOWN LOGIC (NO 3D ANIMATION) ---
         const daysEl = document.getElementById('days');
         const hoursEl = document.getElementById('hours');
         const minutesEl = document.getElementById('minutes');
@@ -316,9 +245,11 @@
         function showModal(message) {
             modalMessage.textContent = message;
             modal.classList.remove('hidden');
+            modal.classList.add('flex', 'items-center', 'justify-center');
         }
 
         function hideModal() {
+            modal.classList.remove('flex', 'items-center', 'justify-center');
             modal.classList.add('hidden');
         }
         
